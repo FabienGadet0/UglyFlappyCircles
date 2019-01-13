@@ -15,8 +15,8 @@ class Bird():
     def init_model(self):
         self.model = Sequential()
         self.model.add(Dense(4,  activation='relu', input_dim=1, kernel_initializer='RandomNormal'))
-        # self.model.add(Dense(4,  activation='relu', input_dim=1, kernel_initializer='RandomNormal'))
-        # self.model.add(Dense(4,  activation='relu', input_dim=1, kernel_initializer='RandomNormal'))
+        self.model.add(Dense(4,  activation='relu', input_dim=1, kernel_initializer='RandomNormal'))
+        self.model.add(Dense(4,  activation='relu', input_dim=1, kernel_initializer='RandomNormal'))
         self.model.add(Dense(1, activation='sigmoid',kernel_initializer='RandomNormal'))
         self.model.compile(loss='categorical_crossentropy',
               optimizer='sgd',

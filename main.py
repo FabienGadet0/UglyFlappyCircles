@@ -32,9 +32,9 @@ def reset(deadBirds):
         print('all dumb')
     if len(deadBirds) != 0:
         deadBirds.sort(key=lambda x: x.fitness, reverse=True)
-        for idx, deadBird in enumerate(deadBirds):
-            birds[idx].model.set_weights(deadBird.model.get_weights())
-    deadBirds.clear()
+        for i in range(0, len(deadBirds)):
+            birds[i].model.set_weights(deadBirds[i].model.get_weights())
+    del deadBirds[:]
     return birds
 
 def loop(pipes, birds, screen):
