@@ -41,7 +41,6 @@ class Bird():
     def brainDEAD(self, a,b,c):
         inputs = np.array([a,b,c, self.velocity])
         r = self.model.predict(inputs)
-        print(r.mean())
         if r.mean() <= 0.5:
             self.up()
 

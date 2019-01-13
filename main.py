@@ -34,6 +34,7 @@ def reset(deadBirds):
         deadBirds.sort(key=lambda x: x.fitness, reverse=True)
         for idx, deadBird in enumerate(deadBirds):
             birds[idx].model.set_weights(deadBird.model.get_weights())
+    deadBirds.clear()
     return birds
 
 def loop(pipes, birds, screen):
@@ -60,7 +61,6 @@ def loop(pipes, birds, screen):
                 done = True # Flag that we are done so we exit this loop
               
 
-
         for idx, bird in enumerate(birds):
             if (every_sec >= 150):
                 bird.brainDEAD(pipes[0].height, pipes[0].bot_rect.top, pipes[0].x)
@@ -71,7 +71,6 @@ def loop(pipes, birds, screen):
                 deadBirds.append(birds.pop(idx))
 
      
-
         for idx, pipe in enumerate(pipes):
             pipe.update()
             for bird in birds:
@@ -82,17 +81,15 @@ def loop(pipes, birds, screen):
                 score += 1
         screen.fill(BLACK)
 
-        if display == 1000:
-            for bird in birds:
-                if not bird.isDead:
-                    pygame.draw.circle(screen, bird.color, bird.pos(), bird.radius)
+        for bird in birds:
+            if not bird.isDead:
+                pygame.draw.circle(screen, bird.color, bird.pos(), bird.radius)
                     # pygame.draw.rect(screen, bird.color, bird.collid)
-            for pipe in pipes:
-                for single_pipe in pipe.rect():
-                    pygame.draw.rect(screen, WHITE, single_pipe)
+        for pipe in pipes:
+            for single_pipe in pipe.rect():
+                pygame.draw.rect(screen, WHITE, single_pipe)
 
-            pygame.display.flip()
-            display = 0
+        pygame.display.flip()
 
 def init_all():
     pipes = []
