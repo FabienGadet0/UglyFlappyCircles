@@ -32,7 +32,7 @@ def reset(deadBirds):
         print('all dumb')
     if len(deadBirds) != 0:
         deadBirds.sort(key=lambda x: x.fitness, reverse=True)
-        for i in range(0, len(deadBirds)):
+        for i in range(0, len(deadBirds / 10)):
             birds[i].model.set_weights(deadBirds[i].model.get_weights())
     del deadBirds[:]
     return birds
