@@ -1,14 +1,15 @@
-from config import *
-import pygame
-from pygame.locals import *
 import random
+from pygame.locals import *
+import pygame
+from config import *
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import losses
 from keras import optimizers
+import numpy as np
+
 # from keras.layers import Input
 # import keras
-import numpy as np
 
 
 class Bird():
@@ -17,36 +18,35 @@ class Bird():
         self.model = Sequential()
         self.model.add(Dense(4,  activation='relu', input_dim=1,
                              kernel_initializer='RandomNormal'))
-        self.model.add(Dense(4,  activation='relu', input_dim=1,
-                             kernel_initializer='RandomNormal'))
-        self.model.add(Dense(4,  activation='relu', input_dim=1,
-                             kernel_initializer='RandomNormal'))
         self.model.add(Dense(1, activation='sigmoid',
                              kernel_initializer='RandomNormal'))
-        self.model.compile(loss='categorical_crossentropy',
-                           optimizer='sgd',
-                           metrics=['accuracy'])
         self.model.compile(loss=losses.categorical_crossentropy,
                            optimizer=optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True))
 
-    def __init__(self, x, y):
-        self.x, self.y = int(x), int(y)
-        self.radius = 25
+    def ini(self):
+        self.x, self.y = int(SIZE[0] / 6), int(SIZE[1] / random.uniform(1, 2))
         self.velocity = GRAVITY
         self.jump = 0
         self.jumping = False
         self.collid = Rect(self.x - self.radius, self.y -
                            self.radius, (self.radius / 2), (self.radius / 2))
         self.isDead = False
+        self.fitness = 0
+        print('y ->', self.y)
+
+    def __init__(self):
+
+        self.radius = 25
         self.color = (random.randint(0, 255), random.randint(
             0, 255), random.randint(0, 255))
+        self.ini()
         self.init_model()
-        self.fitness = 0
 
     def brainDEAD(self, a, b, c):
         inputs = np.array([a, b, c, self.velocity])
         r = self.model.predict(inputs)
-        if r.mean() <= 0.5:
+        # print(r.mean())
+        if r[0] >= 0.5:
             self.up()
 
     def set_pos(self, x, y):
@@ -71,7 +71,6 @@ class Bird():
             self.color = RED
 
     def update(self, delta):
-        print(self.y)
         if self.y > SIZE[1] or self.y < 0:
             self.isDead = True
         if not self.isDead:
