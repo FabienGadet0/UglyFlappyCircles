@@ -1,5 +1,3 @@
-
-# Define the colors we will use in RGB format
 BLACK = (0,   0,   0)
 WHITE = (255, 255, 255)
 BLUE = (0,   0, 255)
@@ -10,4 +8,6 @@ FPS = 60
 SIZE = [1050, 800]
 DISTANCE_BT_PIPES = 500
 JUMP_HEIGHT = 80
-NB_BIRDS = 10
+NB_BIRDS = 50
+MUTATION_RATE = 0.05
+MUTATION_SCALE = 0.3

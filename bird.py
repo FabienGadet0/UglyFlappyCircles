@@ -8,25 +8,18 @@ from keras import losses
 from keras import optimizers
 import numpy as np
 
-# from keras.layers import Input
-# import keras
-
-
-MUTATION_RATE = 0.05
-MUTATION_SCALE = 0.3
-
 
 class Brain():
     def __init__(self):
         num_inputs = 5
-        hidden_nodes = 20
+        hidden_nodes = 4
         num_outputs = 1
 
         self.model = Sequential()
         self.model.add(
             Dense(hidden_nodes, activation='relu', kernel_initializer='RandomNormal', input_dim=num_inputs))
         self.model.add(
-            Dense(num_outputs, kernel_initializer='RandomNormal', activation='sigmoid'))
+            Dense(num_outputs,  activation='sigmoid'))
         self.model.compile(loss='mse', optimizer='adam')
 
     def compute(self, *args):
@@ -42,15 +35,11 @@ class Brain():
         self.__init__()
 
     def mutate(self):
-        # iterate through each layer of model
+
         for i in range(len(self.model.layers)):
             weights = self.model.layers[i].get_weights()
-
-            # mutate weights of network
             for j in range(len(weights[0])):
                 for k in range(len(weights[0][j])):
-
-                    # randomly mutate based on mutation rate
                     if np.random.random() < MUTATION_RATE:
                         weights[0][j][k] += np.random.normal(
                             scale=MUTATION_SCALE) * 0.5
@@ -80,8 +69,7 @@ class Bird():
         self.init_params()
 
     def brainDEAD(self, a, b, c):
-        # print('a :', a, ' b:', b, ' c:', c, ' y :', self.y,
-            #   ' jumping:', (self.jumping == True))
+
         r = self.brain.compute(a, b, c, self.y, (self.jumping == True))
         if r <= 0.5:
             self.up()

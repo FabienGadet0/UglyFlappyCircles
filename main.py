@@ -1,4 +1,3 @@
-# Import a library of functions called 'pygame'
 import pprint
 import random
 from math import pi
@@ -47,7 +46,7 @@ def reset(deadBirds):
 def loop(pipes, birds, screen):
 
     done = False
-    myfont = pygame.font.SysFont("monospace", 25)
+    myfont = pygame.font.SysFont("comicsansms", 25)
     every_sec = 0
     score = 0
     generation = 0
@@ -69,12 +68,10 @@ def loop(pipes, birds, screen):
                 add_pipes(pipes)
             birds = reset(deadBirds)
             generation += 1
-            # birds = reset_birds()
-            # pipes, birds = init_all()
 
-        for event in pygame.event.get():  # User did something
-            if event.type == pygame.QUIT:  # If user clicked close
-                done = True  # Flag that we are done so we exit this loop
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
         if every_sec >= 400:
             for bird in birds:
                 bird.brainDEAD(pipes[0].height,
@@ -108,8 +105,8 @@ def loop(pipes, birds, screen):
             "Generation :" + str(generation), 1, (255, 255, 0))
         label2 = myfont.render(
             "Current score: " + str(score), 1, (255, 255, 0))
-        screen.blit(label, (SIZE[0] / 2), 150)
-        screen.blit(label2, (SIZE[0] / 2), 250)
+        screen.blit(label, ((SIZE[0] / 2.5), 5))
+        screen.blit(label2, ((SIZE[0] / 2.5), 35))
         pygame.display.flip()
 
 
@@ -124,18 +121,11 @@ def init_all():
 
 def main():
 
-    # Initialize the game engine
     pygame.init()
-
     screen = pygame.display.set_mode(SIZE)
-
     pygame.display.set_caption("Flapp tamere")
-    # Loop until the user clicks the close button.
-
     pipes, birds = init_all()
-
     loop(pipes, birds, screen)
-
     pygame.quit()
 
 
