@@ -120,7 +120,6 @@ def init_all():
 
 
 def main():
-
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption("Ugly Flappy Circle")
