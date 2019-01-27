@@ -1,12 +1,15 @@
 # Import a library of functions called 'pygame'
+import pprint
+import random
+from math import pi
+
 import pygame
 from pygame.locals import *
-from math import pi
-import random
+
+from bird import *
 from config import *
 from pipe import *
-from bird import *
-import pprint
+
 
 def add_pipes(pipes):
     pipe_x = 150
@@ -16,7 +19,7 @@ def add_pipes(pipes):
     while pipe_x < SIZE[0] + 200:
         pipe_x += DISTANCE_BT_PIPES
         pipes.append(Pipe(pipe_x))
-  
+
 
 def add_birds():
     b = []
@@ -24,18 +27,29 @@ def add_birds():
         b.append(Bird(SIZE[0] / 6, SIZE[1] / random.uniform(1, 2)))
     return b
 
+
 def reset(deadBirds):
     birds = []
-    birds = add_birds()
-    deadBirds = list(filter(lambda x: x.fitness != 0, deadBirds))
-    if len(deadBirds) == 0:
-        print('all dumb')
-    if len(deadBirds) != 0:
+    deadBirds_filtered = list(filter(lambda x: x.fitness != 0, deadBirds))
+    print(len(deadBirds))
+    if len(deadBirds_filtered) != 0:
+        deadBirds = deadBirds_filtered
         deadBirds.sort(key=lambda x: x.fitness, reverse=True)
-        for i in range(0, len(deadBirds / 10)):
-            birds[i].model.set_weights(deadBirds[i].model.get_weights())
+        for idx, deadBird in enumerate(deadBirds):
+            if idx < int(0.2 * len(deadBirds)):
+                print('cp')
+                birds.append(deadBird)
+            elif idx < int(0.5 * len(deadBirds)):
+                birds.append(deadBird.mutate())
+            else:
+                birds.append(deadBird.reset())
+    else:
+        print('reset_ALL')
+        for deadBird in deadBirds:
+            birds.append(deadBird.reset())
     del deadBirds[:]
     return birds
+
 
 def loop(pipes, birds, screen):
     done = False
@@ -46,7 +60,7 @@ def loop(pipes, birds, screen):
     deadBirds = []
     while not done:
         delta = clock.tick(FPS)
-        display += delta 
+        display += delta
         every_sec += delta
         delta /= 50
 
@@ -55,26 +69,25 @@ def loop(pipes, birds, screen):
             birds = reset(deadBirds)
             # birds = add_birds()
             # pipes, birds = init_all()
-   
-        for event in pygame.event.get(): # User did something
-            if event.type == pygame.QUIT: # If user clicked close
-                done = True # Flag that we are done so we exit this loop
-              
+
+        for event in pygame.event.get():  # User did something
+            if event.type == pygame.QUIT:  # If user clicked close
+                done = True  # Flag that we are done so we exit this loop
 
         for idx, bird in enumerate(birds):
             if (every_sec >= 150):
-                bird.brainDEAD(pipes[0].height, pipes[0].bot_rect.top, pipes[0].x)
+                bird.brainDEAD(pipes[0].height,
+                               pipes[0].bot_rect.top, pipes[0].x)
                 every_sec = 0
             bird.update(delta)
             if bird.isDead:
                 bird.fitness = score
                 deadBirds.append(birds.pop(idx))
 
-     
         for idx, pipe in enumerate(pipes):
             pipe.update()
             for bird in birds:
-               bird.collision(pipe)
+                bird.collision(pipe)
             if pipe.isdead:
                 del pipes[idx]
                 add_pipes(pipes)
@@ -84,12 +97,13 @@ def loop(pipes, birds, screen):
         for bird in birds:
             if not bird.isDead:
                 pygame.draw.circle(screen, bird.color, bird.pos(), bird.radius)
-                    # pygame.draw.rect(screen, bird.color, bird.collid)
+                # pygame.draw.rect(screen, bird.color, bird.collid)
         for pipe in pipes:
             for single_pipe in pipe.rect():
                 pygame.draw.rect(screen, WHITE, single_pipe)
 
         pygame.display.flip()
+
 
 def init_all():
     pipes = []
@@ -98,22 +112,20 @@ def init_all():
     birds = add_birds()
     return pipes, birds
 
+
 def main():
 
     # Initialize the game engine
     pygame.init()
 
-    
     screen = pygame.display.set_mode(SIZE)
-    
+
     pygame.display.set_caption("Flapp tamere")
-    #Loop until the user clicks the close button.
-    
-    
+    # Loop until the user clicks the close button.
+
     pipes, birds = init_all()
-    
+
     loop(pipes, birds, screen)
-    
 
     pygame.quit()
 

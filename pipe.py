@@ -8,7 +8,7 @@ class Pipe():
 
     def __init__(self, x):
         self.x = x
-        self.height = random.randint(200 , 450)
+        self.height = random.randint(200, 450)
         self.y_bot = self.height + random.randint(250, 400)
         self.isdead = False
         self.top_rect = Rect(self.x, 0, 50, self.height)
