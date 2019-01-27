@@ -21,13 +21,6 @@ def add_pipes(pipes):
         pipes.append(Pipe(pipe_x))
 
 
-def add_birds():
-    b = []
-    for i in range(NB_BIRDS):
-        b.append(Bird(SIZE[0] / 6, SIZE[1] / random.uniform(1, 2)))
-    return b
-
-
 def reset(deadBirds):
     birds = []
     deadBirds_filtered = list(filter(lambda x: x.fitness != 0, deadBirds))
@@ -52,13 +45,18 @@ def reset(deadBirds):
 
 
 def loop(pipes, birds, screen):
+
     done = False
+    myfont = pygame.font.SysFont("monospace", 25)
     every_sec = 0
     score = 0
+    generation = 0
     display = 0
     clock = pygame.time.Clock()
     deadBirds = []
+
     while not done:
+
         delta = clock.tick(FPS)
         display += delta
         every_sec += delta
@@ -66,19 +64,23 @@ def loop(pipes, birds, screen):
 
         if(len(birds) == 0):
             score = 0
+            if pipes[0].x < 200:
+                pipes.pop(0)
+                add_pipes(pipes)
             birds = reset(deadBirds)
-            # birds = add_birds()
+            generation += 1
+            # birds = reset_birds()
             # pipes, birds = init_all()
 
         for event in pygame.event.get():  # User did something
             if event.type == pygame.QUIT:  # If user clicked close
                 done = True  # Flag that we are done so we exit this loop
-
-        for idx, bird in enumerate(birds):
-            if (every_sec >= 150):
+        if every_sec >= 400:
+            for bird in birds:
                 bird.brainDEAD(pipes[0].height,
                                pipes[0].bot_rect.top, pipes[0].x)
                 every_sec = 0
+        for idx, bird in enumerate(birds):
             bird.update(delta)
             if bird.isDead:
                 bird.fitness = score
@@ -97,11 +99,17 @@ def loop(pipes, birds, screen):
         for bird in birds:
             if not bird.isDead:
                 pygame.draw.circle(screen, bird.color, bird.pos(), bird.radius)
-                # pygame.draw.rect(screen, bird.color, bird.collid)
+
         for pipe in pipes:
             for single_pipe in pipe.rect():
                 pygame.draw.rect(screen, WHITE, single_pipe)
 
+        label = myfont.render(
+            "Generation :" + str(generation), 1, (255, 255, 0))
+        label2 = myfont.render(
+            "Current score: " + str(score), 1, (255, 255, 0))
+        screen.blit(label, (SIZE[0] / 2), 150)
+        screen.blit(label2, (SIZE[0] / 2), 250)
         pygame.display.flip()
 
 
@@ -109,7 +117,8 @@ def init_all():
     pipes = []
     birds = []
     add_pipes(pipes)
-    birds = add_birds()
+    for i in range(NB_BIRDS):
+        birds.append(Bird())
     return pipes, birds
 
 

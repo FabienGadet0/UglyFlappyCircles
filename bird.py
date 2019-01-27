@@ -1,14 +1,16 @@
-from config import *
-import pygame
-from pygame.locals import *
 import random
+from pygame.locals import *
+import pygame
+from config import *
 from keras.models import Sequential
 from keras.layers import Dense, Reshape
 from keras import losses
 from keras import optimizers
+import numpy as np
+
 # from keras.layers import Input
 # import keras
-import numpy as np
+
 
 MUTATION_RATE = 0.05
 MUTATION_SCALE = 0.3
@@ -59,22 +61,23 @@ class Brain():
 
 class Bird():
 
-    def init_params(self, x, y):
-        self.x, self.y = int(x), int(y)
+    def init_params(self):
         self.radius = 25
+        self.x, self.y = int(SIZE[0] / 6), int(SIZE[1] / random.uniform(1, 2))
         self.velocity = GRAVITY
         self.jump = 0
         self.jumping = False
         self.collid = Rect(self.x - self.radius, self.y -
                            self.radius, (self.radius / 2), (self.radius / 2))
         self.isDead = False
+
         self.color = (random.randint(0, 255), random.randint(
             0, 255), random.randint(0, 255))
         self.fitness = 0
 
-    def __init__(self, x, y):
+    def __init__(self):
         self.brain = Brain()
-        self.init_params((SIZE[0] / 6), SIZE[1] / random.uniform(1, 2))
+        self.init_params()
 
     def brainDEAD(self, a, b, c):
         # print('a :', a, ' b:', b, ' c:', c, ' y :', self.y,
@@ -85,7 +88,7 @@ class Bird():
 
     def reset(self):
         self.brain.reset()
-        self.init_params((SIZE[0] / 6), SIZE[1] / random.uniform(1, 2))
+        self.init_params()
         return self
 
     def mutate(self):
@@ -126,7 +129,3 @@ class Bird():
                 self.velocity = GRAVITY
                 self.jumping = False
             self.move_y()
-
-
-if __name__ == "__main__":
-    b = Bird(10, 50)
