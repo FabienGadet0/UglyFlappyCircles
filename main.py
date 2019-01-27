@@ -123,7 +123,7 @@ def main():
 
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
-    pygame.display.set_caption("Flapp tamere")
+    pygame.display.set_caption("Ugly Flappy Circle")
     pipes, birds = init_all()
     loop(pipes, birds, screen)
     pygame.quit()
