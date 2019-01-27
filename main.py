@@ -21,33 +21,28 @@ def add_pipes(pipes):
 
 
 def reset(deadBirds):
-    birds = []
+    print('before :', len(deadBirds))
+    deadBirds.sort(key=lambda x: x.fitness, reverse=True)
     deadBirds_filtered = list(filter(lambda x: x.fitness != 0, deadBirds))
-    print(len(deadBirds))
     if len(deadBirds_filtered) != 0:
-        deadBirds = deadBirds_filtered
-        deadBirds.sort(key=lambda x: x.fitness, reverse=True)
-        for idx, deadBird in enumerate(deadBirds):
-            if idx < int(0.2 * len(deadBirds)):
-                print('cp')
-                birds.append(deadBird)
-            elif idx < int(0.5 * len(deadBirds)):
-                birds.append(deadBird.mutate())
+        totalDead = len(deadBirds)
+        for idx, deadBird in enumerate(deadBirds_filtered):
+            if idx < int(0.5 * totalDead) and idx > int(0.2 * totalDead):
+                deadBird.mutate()
             else:
-                birds.append(deadBird.reset())
+                deadBird.reset()
+            deadBird.revive()
     else:
-        print('reset_ALL')
         for deadBird in deadBirds:
-            birds.append(deadBird.reset())
-    del deadBirds[:]
-    return birds
+            deadBird.reset()
 
 
 def loop(pipes, birds, screen):
 
     done = False
     myfont = pygame.font.SysFont("comicsansms", 25)
-    every_sec = 0
+    every = 0
+    dead_number = 0
     score = 0
     generation = 0
     display = 0
@@ -58,44 +53,50 @@ def loop(pipes, birds, screen):
 
         delta = clock.tick(FPS)
         display += delta
-        every_sec += delta
+        every += delta
         delta /= 50
 
-        if(len(birds) == 0):
+        if(dead_number == NB_BIRDS):
+            print(dead_number)
             score = 0
             if pipes[0].x < 200:
                 pipes.pop(0)
                 add_pipes(pipes)
-            birds = reset(deadBirds)
+            reset(birds)
             generation += 1
+            dead_number = 0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
-        if every_sec >= 400:
+            if event.type == pygame.K_SPACE:
+                del birds[:]
+        if every >= 400:
             for bird in birds:
                 bird.brainDEAD(pipes[0].height,
                                pipes[0].bot_rect.top, pipes[0].x)
-                every_sec = 0
-        for idx, bird in enumerate(birds):
-            bird.update(delta)
-            if bird.isDead:
+                every = 0
+        for bird in birds:
+            if bird.update(delta):
                 bird.fitness = score
-                deadBirds.append(birds.pop(idx))
+                dead_number += 1
 
         for idx, pipe in enumerate(pipes):
             pipe.update()
-            for bird in birds:
-                bird.collision(pipe)
             if pipe.isdead:
                 del pipes[idx]
                 add_pipes(pipes)
                 score += 1
+            for bird in birds:
+                if bird.collision(pipe):
+                    bird.fitness = score
+                    dead_number += 1
+                    bird.die()
+
         screen.fill(BLACK)
 
         for bird in birds:
-            if not bird.isDead:
-                pygame.draw.circle(screen, bird.color, bird.pos(), bird.radius)
+            bird.draw(screen)
 
         for pipe in pipes:
             for single_pipe in pipe.rect():
@@ -114,15 +115,14 @@ def init_all():
     pipes = []
     birds = []
     add_pipes(pipes)
-    for i in range(NB_BIRDS):
-        birds.append(Bird())
+    birds = [Bird() for x in range(NB_BIRDS)]
     return pipes, birds
 
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode(SIZE)
-    pygame.display.set_caption("Ugly Flappy Circle")
+    pygame.display.set_caption("Ugly Flappy Circles")
     pipes, birds = init_all()
     loop(pipes, birds, screen)
     pygame.quit()

@@ -69,28 +69,31 @@ class Bird():
         self.init_params()
 
     def brainDEAD(self, a, b, c):
-
-        r = self.brain.compute(a, b, c, self.y, (self.jumping == True))
-        if r <= 0.5:
-            self.up()
+        if not self.isDead:
+            r = self.brain.compute(a, b, c, self.y, (self.jumping == True))
+            if r <= 0.5:
+                self.up()
 
     def reset(self):
         self.brain.reset()
         self.init_params()
-        return self
 
     def mutate(self):
         self.brain.mutate()
         self.fitness = 0
-        return self
 
     def cp_birds_VERYINTELLIGENTBRAIN(self, b):
         self.brain.cp(b.brain.model)
         self.fitness = 0
-        return self
 
     def pos(self):
         return (self.x, int(self.y))
+
+    def die(self):
+        self.isDead = True
+
+    def revive(self):
+        self.isDead = False
 
     def up(self):
         if not self.jumping:
@@ -103,17 +106,21 @@ class Bird():
             self.x, self.y, (self.radius / 1.5), (self.radius / 1.5))
 
     def collision(self, pipe):
-        if self.collid.collidelist(pipe.rect()) != -1:
-            self.isDead = True
-            self.color = RED
+        return self.collid.collidelist(pipe.rect()) != -1
 
     def update(self, delta):
-        if self.y > SIZE[1] or self.y < 0:
-            self.isDead = True
         if not self.isDead:
+            if self.y > SIZE[1] or self.y < 0:
+                self.die()
+                print('died')
             if self.jumping:
                 self.velocity -= GRAVITY * delta
             if self.y <= (self.jump - JUMP_HEIGHT):
                 self.velocity = GRAVITY
                 self.jumping = False
             self.move_y()
+        return self.isDead
+
+    def draw(self, screen):
+        if not self.isDead:
+            pygame.draw.circle(screen, self.color, self.pos(), self.radius)
