@@ -29,7 +29,6 @@ class Brain():
 
     def cp(self, brain):
         self.model.set_weights(brain.get_weights())
-        print('cp')
 
     def reset(self):
         self.__init__()
@@ -45,7 +44,6 @@ class Brain():
                             scale=MUTATION_SCALE) * 0.5
 
             self.model.layers[i].set_weights(weights)
-        print('mutate')
 
 
 class Bird():
@@ -65,6 +63,7 @@ class Bird():
         self.fitness = 0
 
     def __init__(self):
+        self.inherit = 0
         self.brain = Brain()
         self.init_params()
 
@@ -75,22 +74,27 @@ class Bird():
                 self.up()
 
     def reset(self):
-        self.brain.reset()
-        self.init_params()
+        if self.inherit == 0:
+            self.brain.reset()
+            self.init_params()
 
     def mutate(self):
         self.brain.mutate()
         self.fitness = 0
+        self.inherit += 1
+        print('mutate')
 
-    def cp_birds_VERYINTELLIGENTBRAIN(self, b):
-        self.brain.cp(b.brain.model)
+    def keep_this_bird_HEISVERYINTELLIGENT(self):
         self.fitness = 0
+        self.inherit += 1
+        print('cp')
 
     def pos(self):
         return (self.x, int(self.y))
 
     def die(self):
         self.isDead = True
+        return True
 
     def revive(self):
         self.isDead = False
@@ -108,18 +112,17 @@ class Bird():
     def collision(self, pipe):
         return self.collid.collidelist(pipe.rect()) != -1
 
-    def update(self, delta):
+    def update(self, delta, pipe):
         if not self.isDead:
-            if self.y > SIZE[1] or self.y < 0:
-                self.die()
-                print('died')
+            if self.y > SIZE[1] or self.y < 0 or self.collision(pipe):
+                return self.die()
             if self.jumping:
                 self.velocity -= GRAVITY * delta
             if self.y <= (self.jump - JUMP_HEIGHT):
                 self.velocity = GRAVITY
                 self.jumping = False
             self.move_y()
-        return self.isDead
+        return False
 
     def draw(self, screen):
         if not self.isDead:

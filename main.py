@@ -3,6 +3,7 @@ import random
 from math import pi
 
 import pygame
+import math
 from pygame.locals import *
 
 from bird import *
@@ -12,7 +13,6 @@ from pipe import *
 
 def add_pipes(pipes):
     pipe_x = 150
-    p = []
     if (len(pipes) > 1):
         pipe_x = pipes[-1].x
     while pipe_x < SIZE[0] + 200:
@@ -21,25 +21,32 @@ def add_pipes(pipes):
 
 
 def reset(deadBirds):
-    print('before :', len(deadBirds))
+    idx = 0
     deadBirds.sort(key=lambda x: x.fitness, reverse=True)
     deadBirds_filtered = list(filter(lambda x: x.fitness != 0, deadBirds))
     if len(deadBirds_filtered) != 0:
-        totalDead = len(deadBirds)
-        for idx, deadBird in enumerate(deadBirds_filtered):
-            if idx < int(0.5 * totalDead) and idx > int(0.2 * totalDead):
+        for deadBird in deadBirds_filtered:
+            if idx < math.ceil(int(0.2 * len(deadBirds_filtered))):
+                deadBird.keep_this_bird_HEISVERYINTELLIGENT()
+            elif idx < math.ceil(int(0.5 * len(deadBirds_filtered))):
                 deadBird.mutate()
             else:
                 deadBird.reset()
             deadBird.revive()
-    else:
-        for deadBird in deadBirds:
-            deadBird.reset()
+            idx += 1
+    while idx != len(deadBirds):
+        if deadBirds[idx].inherit > 0:
+            deadBirds[idx].mutate()
+        else:
+            deadBirds[idx].reset()
+        deadBirds[idx].revive()
+        idx += 1
 
 
 def loop(pipes, birds, screen):
 
     done = False
+    best_score = 0
     myfont = pygame.font.SysFont("comicsansms", 25)
     every = 0
     dead_number = 0
@@ -47,7 +54,6 @@ def loop(pipes, birds, screen):
     generation = 0
     display = 0
     clock = pygame.time.Clock()
-    deadBirds = []
 
     while not done:
 
@@ -56,8 +62,7 @@ def loop(pipes, birds, screen):
         every += delta
         delta /= 50
 
-        if(dead_number == NB_BIRDS):
-            print(dead_number)
+        if(dead_number >= NB_BIRDS):
             score = 0
             if pipes[0].x < 200:
                 pipes.pop(0)
@@ -77,7 +82,7 @@ def loop(pipes, birds, screen):
                                pipes[0].bot_rect.top, pipes[0].x)
                 every = 0
         for bird in birds:
-            if bird.update(delta):
+            if bird.update(delta, pipes[0]):
                 bird.fitness = score
                 dead_number += 1
 
@@ -87,11 +92,6 @@ def loop(pipes, birds, screen):
                 del pipes[idx]
                 add_pipes(pipes)
                 score += 1
-            for bird in birds:
-                if bird.collision(pipe):
-                    bird.fitness = score
-                    dead_number += 1
-                    bird.die()
 
         screen.fill(BLACK)
 
@@ -102,21 +102,28 @@ def loop(pipes, birds, screen):
             for single_pipe in pipe.rect():
                 pygame.draw.rect(screen, WHITE, single_pipe)
 
+        best_score = (best_score, score)[score > best_score]
+
         label = myfont.render(
             "Generation :" + str(generation), 1, (255, 255, 0))
         label2 = myfont.render(
             "Current score: " + str(score), 1, (255, 255, 0))
+        label3 = myfont.render(
+            "Best score: " + str(best_score), 1, (255, 255, 0))
+        label4 = myfont.render(
+            "WE FOUND A GENIUS", 1, (0, 255, 0))
         screen.blit(label, ((SIZE[0] / 2.5), 5))
         screen.blit(label2, ((SIZE[0] / 2.5), 35))
+        screen.blit(label3, ((SIZE[0] / 2.5), 65))
+        if score > 20:
+            screen.blit(label4, ((SIZE[0] / 2) - 200, SIZE[1] / 2 - 100))
         pygame.display.flip()
 
 
 def init_all():
     pipes = []
-    birds = []
     add_pipes(pipes)
-    birds = [Bird() for x in range(NB_BIRDS)]
-    return pipes, birds
+    return pipes, [Bird() for x in range(NB_BIRDS)]
 
 
 def main():
