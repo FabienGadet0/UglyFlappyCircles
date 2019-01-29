@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\Fabien\\Anaconda3\\envs\\flappyNN\\python.exe",
+    "python.pythonPath": "/home/fabien/miniconda3/envs/flappyNN/bin/python",
     "python.formatting.provider": "autopep8",
     "python.linting.pylintEnabled": true,
     "python.linting.pep8Enabled": false,

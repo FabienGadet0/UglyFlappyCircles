@@ -1,9 +1,10 @@
+import math
 import pprint
 import random
 from math import pi
 
 import pygame
-import math
+from keras.initializers import RandomUniform
 from pygame.locals import *
 
 from bird import *
@@ -16,7 +17,7 @@ def add_pipes(pipes):
     if (len(pipes) > 1):
         pipe_x = pipes[-1].x
     while pipe_x < SIZE[0] + 200:
-        pipe_x += DISTANCE_BT_PIPES
+        pipe_x += random.uniform(MIN_DISTANCE_BT_PIPES, 500)
         pipes.append(Pipe(pipe_x))
 
 
@@ -26,16 +27,16 @@ def reset(deadBirds):
     deadBirds_filtered = list(filter(lambda x: x.fitness != 0, deadBirds))
     if len(deadBirds_filtered) != 0:
         for deadBird in deadBirds_filtered:
-            if idx < math.ceil(int(0.2 * len(deadBirds_filtered))):
+            if idx < math.ceil(0.2 * len(deadBirds_filtered)):
                 deadBird.keep_this_bird_HEISVERYINTELLIGENT()
-            elif idx < math.ceil(int(0.5 * len(deadBirds_filtered))):
+            elif idx < math.ceil(0.5 * len(deadBirds_filtered)):
                 deadBird.mutate()
             else:
                 deadBird.reset()
             deadBird.revive()
             idx += 1
     while idx != len(deadBirds):
-        if deadBirds[idx].inherit > 0:
+        if deadBirds[idx].inherit > 0 and deadBirds[idx].fitness > 0:
             deadBirds[idx].mutate()
         else:
             deadBirds[idx].reset()
@@ -51,7 +52,7 @@ def loop(pipes, birds, screen):
     every = 0
     dead_number = 0
     score = 0
-    generation = 0
+    generation = 1
     display = 0
     clock = pygame.time.Clock()
 
@@ -105,7 +106,7 @@ def loop(pipes, birds, screen):
         best_score = (best_score, score)[score > best_score]
 
         label = myfont.render(
-            "Generation :" + str(generation), 1, (255, 255, 0))
+            "Generation: " + str(generation), 1, (255, 255, 0))
         label2 = myfont.render(
             "Current score: " + str(score), 1, (255, 255, 0))
         label3 = myfont.render(

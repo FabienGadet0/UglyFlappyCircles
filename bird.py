@@ -50,7 +50,7 @@ class Bird():
 
     def init_params(self):
         self.radius = 25
-        self.x, self.y = int(SIZE[0] / 6), int(SIZE[1] / random.uniform(1, 2))
+        self.x, self.y = int(SIZE[0] / 6), int(SIZE[1] / random.uniform(2, 3))
         self.velocity = GRAVITY
         self.jump = 0
         self.jumping = False
@@ -74,9 +74,9 @@ class Bird():
                 self.up()
 
     def reset(self):
-        if self.inherit == 0:
-            self.brain.reset()
-            self.init_params()
+        self.fitness = 0
+        self.brain.reset()
+        self.init_params()
 
     def mutate(self):
         self.brain.mutate()
